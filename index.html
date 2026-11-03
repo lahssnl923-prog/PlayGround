@@ -47,6 +47,23 @@
         </div>
       </div>
       <div class="round-callout" id="callout" aria-live="polite"></div>
+      <nav class="touch-controls controls-hidden" aria-label="أزرار التحكم">
+        <div class="control-group movement-group">
+          <span class="control-group-title">تحكّم بالشخصية</span>
+          <div class="move-pad">
+            <button class="touch-btn move-left" data-control="left" aria-label="تحرك يسار">◀</button>
+            <button class="touch-btn move-right" data-control="right" aria-label="تحرك يمين">▶</button>
+          </div>
+        </div>
+        <div class="control-group combat-group">
+          <span class="control-group-title">القتال</span>
+          <div class="action-pad">
+            <button class="touch-btn punch-btn" data-control="punch" aria-label="لكمة">لكمة</button>
+            <button class="touch-btn kick-btn" data-control="kick" aria-label="ركلة">ركلة</button>
+            <button class="touch-btn guard-btn" data-control="guard" aria-label="صد">صدّ</button>
+          </div>
+        </div>
+      </nav>
     </section>
 
     <footer class="controls-footer">
@@ -55,17 +72,7 @@
       </div>
     </footer>
 
-    <nav class="touch-controls" aria-label="أزرار التحكم باللمس">
-      <div class="move-pad">
-        <button class="touch-btn move-left" data-control="left" aria-label="تحرك يسار">◀</button>
-        <button class="touch-btn move-right" data-control="right" aria-label="تحرك يمين">▶</button>
-      </div>
-      <div class="action-pad">
-        <button class="touch-btn guard-btn" data-control="guard" aria-label="صد">صدّ</button>
-        <button class="touch-btn kick-btn" data-control="kick" aria-label="ركلة">ركلة</button>
-        <button class="touch-btn punch-btn" data-control="punch" aria-label="لكمة">لكمة</button>
-      </div>
-    </nav>
+
     <div class="bottom-credit">صُمّمت لتُلعب — <span>احمِ منطقتك.</span></div>
   </main>
   <script src="game.js"></script>
