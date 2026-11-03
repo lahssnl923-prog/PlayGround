@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#101923" />
+  <title>هارب المدينة — مطاردة ثلاثية الأبعاد</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;500;600;700;800&display=swap');
+    :root { color-scheme: dark; --ink:#f6f7f5; --muted:#a9b5b9; --gold:#ffd36b; --cyan:#8de9e6; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#101923; font-family:'Changa',system-ui,sans-serif; color:var(--ink); }
+    #game { position:fixed; inset:0; }
+    canvas { display:block; width:100%; height:100%; touch-action:none; }
+    .vignette { pointer-events:none; position:fixed; inset:0; background:linear-gradient(180deg,rgba(8,16,24,.34),transparent 30%,transparent 66%,rgba(8,14,20,.48)),radial-gradient(ellipse at center,transparent 45%,rgba(6,12,17,.42)); }
+    .hud { position:fixed; inset:0; pointer-events:none; padding: max(20px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) 20px max(22px,env(safe-area-inset-left)); display:none; }
+    .hud.show { display:flex; justify-content:space-between; align-items:flex-start; }
+    .brand { display:flex; align-items:center; gap:11px; font-size:12px; color:#d5dddf; letter-spacing:.12em; }
+    .brand-mark { width:35px;height:35px;border:1px solid rgba(255,255,255,.35);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:18px; }
+    .stats { display:flex; gap:9px; direction:rtl; }
+    .stat { min-width:90px; padding:8px 14px 7px; background:rgba(13,25,34,.56); border:1px solid rgba(255,255,255,.13); border-radius:12px; backdrop-filter:blur(8px); }
+    .stat small { display:block;color:#a8b7bc;font-size:10px;line-height:1.2; }
+    .stat strong { font-family:system-ui,sans-serif;font-size:18px;letter-spacing:.04em; }
+    .wanted { position:absolute; top:86px; right:max(22px,env(safe-area-inset-right)); padding:8px 12px; border-right:2px solid #ff6767; color:#ffc1bb; font-size:12px; background:rgba(13,25,34,.4); }
+    .overlay { position:fixed; inset:0; display:grid;place-items:center; padding:24px; background:linear-gradient(90deg,rgba(8,15,21,.58),rgba(8,15,21,.11) 75%),linear-gradient(0deg,rgba(8,15,21,.2),transparent 55%); }
+    .panel { width:min(440px,100%); margin-right:auto; margin-left:5vw; padding:clamp(24px,4vw,42px); background:linear-gradient(145deg,rgba(19,31,40,.91),rgba(15,24,32,.78)); border:1px solid rgba(235,245,245,.17); border-radius:22px; box-shadow:0 24px 80px rgba(0,0,0,.32); backdrop-filter:blur(15px); }
+    .eyebrow { color:var(--gold); font-size:12px; letter-spacing:.15em; display:flex;align-items:center;gap:9px; }
+    .eyebrow:before { content:'';width:25px;height:1px;background:var(--gold); }
+    h1 { margin:14px 0 8px; font-size:clamp(36px,6vw,58px); line-height:1.08; font-weight:700; letter-spacing:-.04em; }
+    h1 span { color:var(--gold); }
+    .intro { color:#b6c1c3; line-height:1.9; font-size:14px; margin:0 0 24px; }
+    .keys { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 25px; }
+    .key { padding:5px 10px; border-radius:7px; font-size:11px; color:#d6e0e0; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.045); }
+    button { font:inherit; }
+    .start { width:100%; display:flex;justify-content:space-between;align-items:center; color:#172129;background:var(--gold); border:0;border-radius:11px;padding:13px 18px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .18s,background .18s; }
+    .start:hover { transform:translateY(-2px);background:#ffe09a; }
+    .start .arrow { direction:ltr;font-size:20px; }
+    .footnote { text-align:center;color:#839196;font-size:10px;margin-top:12px; }
+    .gameover .panel { border-color:rgba(255,107,94,.35); }
+    .mobile-controls { display:none; position:fixed; bottom:max(22px,env(safe-area-inset-bottom)); left:0;right:0; padding:0 22px; justify-content:space-between; pointer-events:none; direction:ltr; }
+    .control-group { display:flex;gap:10px;pointer-events:auto; }
+    .touch { width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.22);color:white;background:rgba(18,30,39,.63);backdrop-filter:blur(7px);font-size:21px;touch-action:none; }
+    .touch.jump { width:68px;height:68px;color:#19232a;background:var(--gold);border:0;font-size:12px;font-weight:700; }
+    @media(max-width:700px) { .panel{margin:0 auto 15vh}.stats{gap:5px}.stat{min-width:72px;padding:6px 9px}.stat strong{font-size:15px}.brand{font-size:0}.wanted{top:73px}.mobile-controls{display:flex}.overlay{background:linear-gradient(0deg,rgba(8,15,21,.22),rgba(8,15,21,.25))} }
+    @media(max-height:650px) { .panel{padding:20px 24px}.intro{margin-bottom:14px}.keys{margin-bottom:14px}h1{font-size:38px} }
+  </style>
+</head>
+<body>
+  <div id="game"></div><div class="vignette"></div>
+  <div class="hud" id="hud">
+    <div class="brand"><div class="brand-mark">↗</div><span>مطاردة<br>المدينة</span></div>
+    <div class="stats"><div class="stat"><small>المسافة</small><strong id="distance">0000</strong></div><div class="stat"><small>السرعة</small><strong><span id="speed">42</span><small style="display:inline;color:#9eabad"> كم/س</small></strong></div></div>
+    <div class="wanted">● مطلوب — الشرطة خلفك</div>
+  </div>
+  <div class="overlay" id="menu">
+    <section class="panel">
+      <div class="eyebrow">مطاردة في قلب المدينة</div>
+      <h1>هارب<br><span>المدينة</span></h1>
+      <p class="intro">اركض، اقفز وتفادَ الحواجز قبل أن تلحق بك الشرطة. كم ستصمد في شوارع المدينة؟</p>
+      <div class="keys"><span class="key">← → تغيير المسار</span><span class="key">مسافة للقفز</span><span class="key">↑ للقفز</span></div>
+      <button class="start" id="start"><span>ابدأ اللعبة</span><span class="arrow">←</span></button>
+      <div class="footnote">تعمل على الكمبيوتر والهاتف — المس للتحكم</div>
+    </section>
+  </div>
+  <div class="overlay" id="end" style="display:none">
+    <section class="panel gameover">
+      <div class="eyebrow">انتهت المطاردة</div><h1 style="font-size:42px">أمسكت بك<br><span>الشرطة</span></h1>
+      <p class="intro" id="result">لقد قطعت 0 متر.</p>
+      <button class="start" id="again"><span>حاول مرة أخرى</span><span class="arrow">↻</span></button>
+    </section>
+  </div>
+  <div class="mobile-controls" id="controls"><div class="control-group"><button class="touch" data-action="left" aria-label="يسار">‹</button><button class="touch" data-action="right" aria-label="يمين">›</button></div><div class="control-group"><button class="touch jump" data-action="jump">اقفز</button></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+const mount=document.querySelector('#game');
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9caeae); scene.fog=new THREE.Fog(0x9caeae,30,115);
+const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,.1,180); camera.position.set(0,5.1,10.2); camera.lookAt(0,1.4,-5);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.7)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15; renderer.outputColorSpace=THREE.SRGBColorSpace; mount.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe4f0ef,0x43433d,2.0));
+const sun=new THREE.DirectionalLight(0xffe6c6,3.1);sun.position.set(-7,15,4);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-16;sun.shadow.camera.right=16;sun.shadow.camera.top=20;sun.shadow.camera.bottom=-20;sun.shadow.bias=-.0002;scene.add(sun);
+const mat=(color,rough=.8,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
+const roadMat=mat(0x343b3c,.94),sideMat=mat(0x77786d),concrete=mat(0xaaa79a),dark=mat(0x20292b),white=mat(0xe6e1d3),orange=mat(0xe36e3b),blue=mat(0x273b4b),skin=mat(0xb98362),pants=mat(0x272d30),uniform=mat(0x172b3b),policeBlue=mat(0x213a50),gold=mat(0xc5a66c,.45,.5);
+function box(parent,w,h,d,material,x=0,y=0,z=0){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
+function sphere(parent,r,material,x,y,z,sx=1,sy=1,sz=1){const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m;}
+function capsule(parent,r,len,material,x,y,z){const m=new THREE.Mesh(new THREE.CapsuleGeometry(r,len,4,8),material);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
+// Asphalt, sidewalks and urban canyon
+const ground=box(scene,9,.18,150,roadMat,0,-.13,-48); ground.receiveShadow=true;
+box(scene,2.6,.24,150,sideMat,-5.7,-.11,-48);box(scene,2.6,.24,150,sideMat,5.7,-.11,-48);
+for(const x of [-4.25,4.25]){box(scene,.11,.015,150,concrete,x,.01,-48);}
+// dashed lane markings
+const laneDashes=[];for(let z=-118;z<16;z+=7){for(const x of [-1.5,1.5]){const dash=box(scene,.075,.025,3.2,white,x,.005,z);laneDashes.push(dash);}}
+// sidewalk paving seams
+for(let z=-115;z<15;z+=5){box(scene,2.58,.018,.055,concrete,-5.7,.025,z);box(scene,2.58,.018,.055,concrete,5.7,.025,z);}
+// Distant hazy skyline backdrop
+const skylineMat=[mat(0x879594),mat(0x72817f),mat(0xb0a99b),mat(0x657675)];
+for(let side of [-1,1]) for(let i=0;i<13;i++){
+ const z=-i*10-8, width=2.2+Math.random()*2, height=8+Math.random()*13, x=side*(7.2+Math.random()*2);
+ const b=box(scene,width,height,7,skylineMat[i%skylineMat.length],x,height/2-.05,z);b.castShadow=false;
+ const windows=mat(i%2?0x536665:0xc2b895,.7,.1);
+ for(let yy=1.2;yy<height-1;yy+=2.05)for(let xx=-width/2+.5;xx<width/2-.2;xx+=.75){const win=box(scene,.22,.52,.025,windows,x+xx,yy,z+3.51);win.castShadow=false;}
+ // shop awnings and street lamps near road edge
+ if(i%2===0){const pole=box(scene,.09,4,.09,dark,side*4.55,2,z+2);const arm=box(scene,1.15,.08,.08,dark,side*4.08,3.9,z+2);sphere(scene,.2,mat(0xffd697,.35),side*3.58,3.85,z+2,1,.45,.6);}
+}
+// Character builder: realistic proportions, layered clothing, limbs animated separately
+function makePerson(isCop=false){
+ const g=new THREE.Group(), top=isCop?uniform:blue, legmat=isCop?policeBlue:pants;
+ const torso=capsule(g,.31,.57,top,0,1.25,0);torso.scale.set(.92,1, .62);
+ box(g,.58,.12,isCop?.34:.32,legmat,0,.96,0);
+ sphere(g,.22,skin,0,1.88,0,.88,1.08,.82);
+ // hair / cap
+ if(isCop){const cap=box(g,.48,.12,.43,policeBlue,0,2.09,0);sphere(g,.1,gold,0,2.17,-.02,1,.36,.25);}
+ else {sphere(g,.225,mat(0x292321),0,2.01,-.015,1,.5,.9);}
+ // nose and ears
+ sphere(g,.044,skin,0,1.88,-.198,.8,.85,.7);for(const s of [-1,1])sphere(g,.045,skin,s*.215,1.88,0,.8,1,1);
+ if(isCop){box(g,.09,.19,.035,gold,.19,1.5,-.177);}
+ const limbs=[];
+ for(const s of [-1,1]){
+  const arm=new THREE.Group();arm.position.set(s*.36,1.53,0);g.add(arm);capsule(arm,.115,.43,top,0,-.25,0);sphere(arm,.09,skin,0,-.53,-.01);limbs.push(arm);
+  const leg=new THREE.Group();leg.position.set(s*.17,.94,0);g.add(leg);capsule(leg,.135,.48,legmat,0,-.29,0);box(leg,.22,.12,.4,dark,0,-.57,-.1);limbs.push(leg);
+ }
+ if(isCop){ // badge + belt
+  sphere(g,.065,gold,-.15,1.49,-.19,.7,1,.25);box(g,.56,.08,.34,dark,0,1.02,0);
+ }
+ return {group:g,limbs};
+}
+const player=makePerson(false);scene.add(player.group);player.group.position.set(0,0,0);
+const cop=makePerson(true);scene.add(cop.group);cop.group.position.set(0,0,4.2);cop.group.scale.set(.9,.9,.9);
+// Obstacles
+const obstacles=[];
+function makeObstacle(type,lane,z){const g=new THREE.Group();g.position.set([-3,0,3][lane],0,z);scene.add(g);
+ if(type===0){ // road barrier
+  box(g,1.42,.65,.38,orange,0,.42,0);box(g,1.45,.12,.43,white,0,.58,-.015);
+  for(let x=-.48;x<=.5;x+=.48){const stripe=box(g,.22,.64,.41,white,x,.42,-.01);stripe.rotation.z=-.42;}
+  box(g,1.65,.12,.48,dark,0,.09,0);
+ }else if(type===1){ // stacked crates, jump over
+  box(g,1.02,1.12,.8,mat(0x765741),0,.57,0);box(g,1.12,.1,.86,mat(0x98704c),0,.59,-.02);box(g,.08,1.12,.83,mat(0x503b2d),0,.57,-.01);
+  box(g,.9,.1,.83,mat(0x98704c),0,.3,-.03);
+ }else{ // traffic cones
+  for(const x of [-.4,.4]){const c=new THREE.Mesh(new THREE.ConeGeometry(.22,.65,12),orange);c.position.set(x,.35,0);c.castShadow=true;g.add(c);box(g,.46,.08,.46,white,x,.06,0);}
+ }
+ obstacles.push({group:g,type,lane,passed:false});}
+let spawnClock=0,gameState='menu',distance=0,speed=42,hitCooldown=0,runClock=0,lane=1,targetLane=1,vy=0,jumping=false,score=0;
+function reset(){for(const o of obstacles)scene.remove(o.group);obstacles.length=0;distance=0;speed=42;spawnClock=.5;hitCooldown=0;runClock=0;score=0;lane=targetLane=1;vy=0;jumping=false;player.group.position.set(0,0,0);cop.group.position.set(0,0,4.2);}
+function startGame(){reset();gameState='play';document.querySelector('#menu').style.display='none';document.querySelector('#end').style.display='none';document.querySelector('#hud').classList.add('show');}
+document.querySelector('#start').onclick=startGame;document.querySelector('#again').onclick=startGame;
+function move(dir){if(gameState!=='play')return;targetLane=THREE.MathUtils.clamp(targetLane+dir,0,2);}
+function jump(){if(gameState==='play'&&!jumping){jumping=true;vy=7.8;}}
+addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp',' ','KeyA','KeyD','KeyW'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')move(-1);if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')move(1);if(e.key==='ArrowUp'||e.key===' '||e.key==='w'||e.key==='W')jump();if((e.key==='Enter')&&gameState!=='play')startGame();});
+for(const btn of document.querySelectorAll('.touch')){btn.addEventListener('pointerdown',e=>{e.preventDefault();const a=btn.dataset.action;if(a==='left')move(-1);else if(a==='right')move(1);else jump();});}
+function finish(){gameState='over';document.querySelector('#hud').classList.remove('show');document.querySelector('#end').style.display='grid';document.querySelector('#result').textContent=`لقد قطعت ${Math.floor(distance)} متر قبل أن تلحق بك الشرطة.`;}
+let last=performance.now();
+function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,.04);last=now;runClock+=dt;
+ if(gameState==='play'){
+  speed=Math.min(68,42+distance*.018);distance+=speed*dt/3.6;spawnClock-=dt;
+  if(spawnClock<=0){const laneIndex=Math.floor(Math.random()*3);makeObstacle(Math.floor(Math.random()*3),laneIndex,-88);spawnClock=Math.max(.77,1.32-distance/2400)+(Math.random()*.55);}
+  lane=THREE.MathUtils.damp(lane,targetLane,12,dt);player.group.position.x=THREE.MathUtils.damp(player.group.position.x,[-3,0,3][lane],12,dt);
+  if(jumping){vy-=19*dt;player.group.position.y+=vy*dt;if(player.group.position.y<=0){player.group.position.y=0;vy=0;jumping=false;}}
+  const stride=Math.sin(runClock*speed*.42);
+  player.limbs[0].rotation.x=stride*.68;player.limbs[1].rotation.x=-stride*.76;player.limbs[2].rotation.x=-stride*.75;player.limbs[3].rotation.x=stride*.75;
+  cop.limbs[0].rotation.x=-stride*.43;cop.limbs[1].rotation.x=stride*.43;cop.limbs[2].rotation.x=stride*.47;cop.limbs[3].rotation.x=-stride*.47;
+  cop.group.position.x=THREE.MathUtils.damp(cop.group.position.x,player.group.position.x*.8,1.8,dt);
+  cop.group.position.z=4.2-Math.min(1.7,distance/600)-score*.65;cop.group.position.y=Math.abs(stride)*.035;
+  if(hitCooldown>0)hitCooldown-=dt;
+  for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.group.position.z+=speed*dt/3.6;
+   if(!o.passed&&o.group.position.z>-.3){o.passed=true;const same=Math.abs(o.group.position.x-player.group.position.x)<1.35;const cleared=jumping&&player.group.position.y>(o.type===1?.92:.57);if(same&&!cleared&&hitCooldown<=0){hitCooldown=1.4;score++;speed=Math.max(36,speed-5);if(score>=2)finish();} }
+   if(o.group.position.z>11){scene.remove(o.group);obstacles.splice(i,1);}
+  }
+  // Move road paint and sidewalk seams to suggest speed.
+  for(const dash of laneDashes){dash.position.z+=speed*dt/3.6;if(dash.position.z>12)dash.position.z-=126;}
+  document.querySelector('#distance').textContent=String(Math.floor(distance)).padStart(4,'0');document.querySelector('#speed').textContent=Math.round(speed);
+ }
+ // idle motions and camera ease
+ const bob=gameState==='play'?Math.abs(Math.sin(runClock*9))*.035:Math.sin(now*.0014)*.025;
+ if(gameState!=='play'){player.group.position.y=bob;player.limbs[0].rotation.x=Math.sin(now*.001)*.04;}
+ camera.position.x=THREE.MathUtils.damp(camera.position.x,player.group.position.x*.2,2.2,dt);camera.lookAt(player.group.position.x*.16,1.35,-5.3);
+ renderer.render(scene,camera);
+}
+requestAnimationFrame(animate);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));});
+</script>
+</body>
+</html>
