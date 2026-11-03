@@ -2,7 +2,7 @@
   'use strict';
   const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
   const $ = id => document.getElementById(id);
-  const overlay = $('overlay'), startBtn = $('startBtn'), callout = $('callout');
+  const overlay = $('overlay'), startBtn = $('startBtn'), callout = $('callout'), touchControls = document.querySelector('.touch-controls');
   const W=960,H=540,FLOOR=432, held={left:false,right:false,guard:false};
   let playing=false,ended=false,seconds=99,last=0,elapsed=0,aiClock=0,calloutTimer=0,shake=0,soundOn=false,audio,sparks=[],overlayTimeout;
   const player=makeFighter('الصقر',292,1,'player'), enemy=makeFighter('الذئب',668,-1,'enemy');
@@ -94,11 +94,11 @@
   }
   function showCallout(text,duration=1){callout.textContent=text;callout.classList.add('show');calloutTimer=duration}
   function startGame(){
-    clearTimeout(overlayTimeout);overlay.classList.add('hidden');
+    clearTimeout(overlayTimeout);overlay.classList.add('hidden');touchControls.classList.remove('controls-hidden');
     player.hp=enemy.hp=100;player.x=292;enemy.x=668;player.state=enemy.state='idle';player.action=enemy.action=0;player.cooldown=enemy.cooldown=0;player.hurt=enemy.hurt=0;player.combo=enemy.combo=0;seconds=99;elapsed=0;aiClock=.7;ended=false;playing=true;sparks=[];held.left=held.right=held.guard=false;overlay.classList.add('hidden');showCallout('استعدّ!',1.15);updateHud();
   }
   function finishGame(winner){
-    if(ended)return;ended=true;playing=false;showCallout(winner==='player'?'فزت بالجولة!':'انتهى القتال',1.8);
+    if(ended)return;ended=true;playing=false;touchControls.classList.add('controls-hidden');showCallout(winner==='player'?'فزت بالجولة!':'انتهى القتال',1.8);
     overlayTimeout=setTimeout(()=>{if(!ended)return;overlay.classList.remove('hidden');$('overlayTitle').textContent=winner==='player'?'بطل الحي!':'حاول مرة أخرى';$('overlayText').textContent=winner==='player'?'هزمت الذئب وأثبتّ أنك الأقوى في الحلبة.':'الذئب كان أقوى هذه المرة — عد إلى الحلبة وانتقم.';startBtn.querySelector('span').textContent='العب مرة أخرى';},1250);
   }
   function attack(f,type){
