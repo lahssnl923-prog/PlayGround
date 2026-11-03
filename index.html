@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#10131c">
+  <title>قتال الشوارع — آخر واقف</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="قتال الشوارع">
+        <span class="brand-mark">拳</span>
+        <span><b>قتال الشوارع</b><small>الحلبة: زقاق المدينة</small></span>
+      </a>
+      <div class="round-pill"><span class="live-dot"></span> الجولة الأولى <i>•</i> حتى النهاية</div>
+      <button class="sound-button" id="soundBtn" aria-label="تشغيل أو إيقاف الصوت" title="الصوت">♪ <span>الصوت</span></button>
+    </header>
+
+    <section class="arena-wrap" aria-label="ساحة القتال">
+      <div class="match-hud">
+        <div class="fighter-card player-card">
+          <div class="fighter-name"><span class="name-icon">١</span><span><b>الصقر</b><small>مقاتل الحي</small></span></div>
+          <div class="health-track"><div class="health-fill player-health" id="playerHealth"></div></div>
+          <div class="health-label"><span>الطاقة</span><b id="playerHealthText">100%</b></div>
+        </div>
+        <div class="match-center"><span class="versus">VS</span><strong id="timer">٩٩</strong><small>الوقت</small></div>
+        <div class="fighter-card enemy-card">
+          <div class="fighter-name"><span class="name-icon enemy-icon">٢</span><span><b>الذئب</b><small>بطل الحلبة</small></span></div>
+          <div class="health-track"><div class="health-fill enemy-health" id="enemyHealth"></div></div>
+          <div class="health-label"><span>الطاقة</span><b id="enemyHealthText">100%</b></div>
+        </div>
+      </div>
+
+      <canvas id="game" width="960" height="540" aria-label="لعبة قتال الشوارع ثنائية الأبعاد"></canvas>
+
+      <div class="arena-caption"><span class="caption-line"></span> زقاق المدينة <span class="caption-line"></span></div>
+      <div class="overlay" id="overlay">
+        <div class="overlay-card">
+          <div class="overlay-emblem">拳</div>
+          <p class="eyebrow">تحدّى بطل الحي</p>
+          <h1 id="overlayTitle">هل أنت مستعد؟</h1>
+          <p id="overlayText">قاتل بذكاء، راوغ ضربات خصمك، وكن آخر من يقف.</p>
+          <button class="primary-button" id="startBtn"><span>ابدأ القتال</span><b>←</b></button>
+          <div class="quick-hint"><span>J</span> لكمة <span>K</span> ركلة <span>⇧</span> صدّ</div>
+        </div>
+      </div>
+      <div class="round-callout" id="callout" aria-live="polite"></div>
+    </section>
+
+    <footer class="controls-footer">
+      <div class="control-guide"><span class="guide-icon">⌨</span><span><b>التحكم</b><small>تحرّك بالأسهم أو A / D — لكمة J — ركلة K — صدّ Shift</small></span></div>
+      <div class="control-note"><span class="keycap">←</span><span class="keycap">→</span> تحرّك <span class="guide-separator">|</span> اضغط باستمرار للصدّ
+      </div>
+    </footer>
+
+    <nav class="touch-controls" aria-label="أزرار التحكم باللمس">
+      <div class="move-pad">
+        <button class="touch-btn move-left" data-control="left" aria-label="تحرك يسار">◀</button>
+        <button class="touch-btn move-right" data-control="right" aria-label="تحرك يمين">▶</button>
+      </div>
+      <div class="action-pad">
+        <button class="touch-btn guard-btn" data-control="guard" aria-label="صد">صدّ</button>
+        <button class="touch-btn kick-btn" data-control="kick" aria-label="ركلة">ركلة</button>
+        <button class="touch-btn punch-btn" data-control="punch" aria-label="لكمة">لكمة</button>
+      </div>
+    </nav>
+    <div class="bottom-credit">صُمّمت لتُلعب — <span>احمِ منطقتك.</span></div>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
