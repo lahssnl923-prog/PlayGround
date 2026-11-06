@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#101819" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%23d5f064'/%3E%3Ctext x='20' y='29' text-anchor='middle' font-size='27' fill='%23121c1d'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E" />
+  <title>Fruit Frenzy — Slice. Chain. Shine.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Fruit Frenzy home"><span class="brand-mark">✦</span><span>FRUIT<span class="brand-light">FRENZY</span></span></a>
+      <div class="top-note"><span class="live-dot"></span> ARCADE MODE <i>·</i> NO. 01</div>
+      <button class="sound-button" id="soundBtn" aria-label="Toggle sound"><span id="soundIcon">♫</span><span class="sound-label">SOUND ON</span></button>
+    </header>
+
+    <section class="game-layout" aria-label="Fruit Frenzy game">
+      <aside class="side-copy">
+        <p class="eyebrow">THE DAILY SLICER <span>✳</span></p>
+        <h1>Slice.<br><em>Chain.</em><br>Shine.</h1>
+        <p class="description">One clean swipe is good.<br>A whole fruit salad? <strong>Legendary.</strong></p>
+        <div class="howto"><span class="howto-icon">↗</span><p><b>SWIPE TO SLICE</b><br>Chain cuts for a score boost.<br>Don't touch the bombs.</p></div>
+        <div class="personal-best"><span>YOUR BEST</span><b id="bestSide">0000</b><span class="best-star">✦</span></div>
+      </aside>
+
+      <div class="board-wrap">
+        <div class="game-frame">
+          <canvas id="game" aria-label="Fruit slicing playfield"></canvas>
+          <div class="hud">
+            <div class="hud-block score-block"><span>SCORE</span><strong id="score">0000</strong><small id="scoreDelta"></small></div>
+            <div class="hud-block combo-block" id="comboHud"><span>CHAIN</span><strong id="combo">×1</strong></div>
+            <div class="hud-block time-block"><span>TIME</span><strong id="time">60</strong></div>
+            <div class="lives" id="lives" aria-label="3 lives"><span>♥</span><span>♥</span><span>♥</span></div>
+          </div>
+          <div class="combo-toast" id="comboToast"></div>
+          <div class="overlay" id="overlay">
+            <div class="overlay-card">
+              <div class="overlay-kicker"><span>✦</span> FRESH FROM THE ORCHARD <span>✦</span></div>
+              <div class="hero-fruits" aria-hidden="true"><span>🍊</span><span>🍉</span><span>🍋</span><span>🍓</span></div>
+              <h2 id="overlayTitle">Ready,<br><em>fruit ninja?</em></h2>
+              <p id="overlayText">60 seconds. Three hearts.<br>How long can you keep the chain alive?</p>
+              <button class="play-button" id="playBtn"><span id="playLabel">LET'S PLAY</span><b>↗</b></button>
+              <div class="overlay-hint">SWIPE ANYWHERE TO SLICE <span>·</span> AVOID BOMBS</div>
+            </div>
+          </div>
+          <div class="pause-indicator" id="pauseIndicator">PAUSED <button id="resumeBtn">RESUME ↗</button></div>
+        </div>
+        <div class="board-footer"><span><i class="footer-dot"></i> JUICE MODE <b>ON</b></span><span>BEST CHAIN <b id="bestChain">—</b></span><button id="pauseBtn" aria-label="Pause game">Ⅱ <span>PAUSE</span></button></div>
+      </div>
+    </section>
+    <footer class="page-footer"><span>MADE FOR QUICK REFLEXES <b>AND LONG CHAINS.</b></span><span>TIP: <b>SLICE THROUGH A CROWD</b> TO MULTIPLY YOUR SCORE <span class="footer-spark">✦</span></span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
